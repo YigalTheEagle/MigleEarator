@@ -6,11 +6,16 @@
  
 ## Why?
  The usage of syscalls helps evading userland hooks put in place.
- Furthermore, as it is hijacking a currently running thread and not creating a new one, it does not trigger the PsSetCreateThreadNotifyRoutine and PsSetCreateProcessNotifyRoutine kernel callbacks.
+ 
+ This injection technique hijacks a currently running thread and not creating a new one, it does not trigger the PsSetCreateThreadNotifyRoutine and PsSetCreateProcessNotifyRoutine kernel callbacks.
+ 
+ Provided a simple calculator shellcode for your testing purposes.
+ 
+ 
  
  **Please note** as the RIP is being violently changed, the program will crash once the shellcode has finished execution, unless the original thread context is resumed in an awesome manner ;)
  
- Provided a simple calculator shellcode for your testing purposes.
+ 
 
 
 ## References
