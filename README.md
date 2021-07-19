@@ -15,6 +15,8 @@
  Change the shellcode at ChangeThese.h and the decryption key (and if needed the decryption function itself) to match your encrypted shellcode.
  Provided a simple calculator shellcode for your testing purposes.
  
+ Don't forget to add a certificate to your payload!
+ 
 
  
 
