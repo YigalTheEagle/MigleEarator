@@ -9,7 +9,8 @@
  Furthermore, as it is hijacking a currently running thread and not creating a new one, it does not trigger the PsSetCreateThreadNotifyRoutine and PsSetCreateProcessNotifyRoutine kernel callbacks.
  
  **Please note** as the RIP is being violently changed, the program will crash once the shellcode has finished execution, unless the original thread context is resumed in an awesome manner ;)
- Provided a simple calculator shellcode from msfvenom for your testing purposes.
+ 
+ Provided a simple calculator shellcode for your testing purposes.
 
 
 ## References
